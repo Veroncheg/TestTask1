@@ -1,0 +1,8 @@
+[Unit]
+Description=Test task
+
+[Service]
+ExecStart=/usr/bin/testlog.sh -f /var/log/testlog -s TimeoutError
+
+[Install]
+WantedBy=multi-user.target
