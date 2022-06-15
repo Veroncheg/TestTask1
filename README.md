@@ -12,10 +12,14 @@ To connect to the instance, use ssm session.
 By default daemon will check /var/log/testlog file for "TimeoutError" errors. This is configured in systemd unit file.
 
 Running manually: 
-testlog.sh -c configfile -f logfilename -s searchstring
+
+        testlog.sh -c configfile -f logfilename -s searchstring
 
 Configuration file format:
-filename="logfilename"
-searchstring="string to search"
+
+        filename="logfilename"
+        searchstring="string to search"
 
 Command line variables will overwrite config file variables.
+
+Use *systemctl status testlog.service* to check daemon logs.
