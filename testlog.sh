@@ -2,9 +2,9 @@
 
 function readme {
 cat <<EOF
-Usage: $BASH_SOURCE -f logfilename -s searchstring
+Usage: $BASH_SOURCE -c configfile -f logfilename -s searchstring
 
-or configure settings in .logconfig file:
+Configuration file format:
 filename="logfilename"
 searchstring="string to search"
 
@@ -13,19 +13,24 @@ EOF
 exit 1
 }
 
-# Loading variables from config file
-if [ -f .logconfig ]; then 
-	source .logconfig
-fi
-
 # Setting variables from command line
-while getopts f:s: flag
+while getopts f:s:c: flag
 do
 	case "${flag}" in
-		f) filename=${OPTARG};;
-		s) searchstring=${OPTARG};;
+		f) filenamearg=${OPTARG};;
+		s) searchstringarg=${OPTARG};;
+		c) configfile=${OPTARG};;
 	esac
 done
+
+# Loading variables from config file
+if [ -f "$configfile" ]; then 
+	source "$configfile"
+fi
+
+#Overriding variables from configfile with variables from command line
+test -z "$filenamearg" || filename=$filenamearg
+test -z "$searchstringarg" || searchstring=$searchstringarg
 
 # Checking that variables not empty
 (test -z "$filename" || test -z "$searchstring") && readme
