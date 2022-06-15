@@ -4,7 +4,7 @@ Parameters:
   ImageId:
     Description: ImageId to use
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2
 Resources: 
   TestTaskVPC:
     Type: AWS::EC2::VPC
@@ -37,12 +37,33 @@ Resources:
       Tags:
         - Key: Name
           Value: TestTaskSubnet
+      MapPublicIpOnLaunch: true
+  
+  TestTaskRt:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref TestTaskVPC
+      Tags:
+        - Key: Name
+          Value: TestTaskRt
+  
+  TestTaskRtAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref TestTaskSubnet
+      RouteTableId: !Ref TestTaskRt
+
+  TestTaskRtDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref TestTaskRt
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref TestTaskIgw
   
   TestTaskENI:
     Type: AWS::EC2::NetworkInterface
     Properties:
       Description: "TestTask Instance ENI"
-      GroupSet:
       SourceDestCheck: false
       SubnetId: !Ref TestTaskSubnet
       Tags:
@@ -62,7 +83,7 @@ Resources:
       NetworkInterfaces:
       - NetworkInterfaceId: !Ref TestTaskENI
         DeviceIndex: 0
-      UserData: "IyEvdXNyL2Jpbi9lbnYgYmFzaApnaXQgY2xvbmUgaHR0cHM6Ly9naXRodWIuY29tL1Zlcm9uY2hlZy9UZXN0VGFzazEuZ2l0IApjZCBUZXN0VGFzazEKY3AgdGVzdGxvZy5zZXJ2aWNlIC9ldGMvc3lzdGVtZC9zeXN0ZW0vCmNwIHRlc3Rsb2cuc2ggL3Vzci9iaW4vCmNwIHRlc3Rsb2cgL3Zhci9sb2cvCnN5c3RlbWN0bCBkYWVtb24tcmVsb2FkCnN5c3RlbWN0bCBlbmFibGUgdGVzdGxvZy5zZXJ2aWNlCnN5c3RlbWN0bCBzdGFydCB0ZXN0bG9nLnNlcnZpY2UK"
+      UserData: "IyEvdXNyL2Jpbi9lbnYgYmFzaAp5dW0gaW5zdGFsbCBnaXQgLXkKZ2l0IGNsb25lIGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJvbmNoZWcvVGVzdFRhc2sxLmdpdCAKY2QgVGVzdFRhc2sxCmNwIHRlc3Rsb2cuc2VydmljZSAvZXRjL3N5c3RlbWQvc3lzdGVtLwpjcCB0ZXN0bG9nLnNoIC91c3IvYmluLwpjcCB0ZXN0bG9nIC92YXIvbG9nLwpzeXN0ZW1jdGwgZGFlbW9uLXJlbG9hZApzeXN0ZW1jdGwgZW5hYmxlIHRlc3Rsb2cuc2VydmljZQpzeXN0ZW1jdGwgc3RhcnQgdGVzdGxvZy5zZXJ2aWNlCg=="
   
   IamRole:
     Type: "AWS::IAM::Role"
