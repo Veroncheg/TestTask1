@@ -9,7 +9,7 @@ Files:
 
 By default this cf template will create ec2 instance in new vpc, internet gateway in this vpc, iam role for ec2 instance for ssm connectivity.
 To connect to the instance, use ssm session.
-By default daemon will check /var/log/testlog file for "TimeoutError" errors. This is configured in systemd unit file.
+By default daemon will check /var/log/testlog which has been copied from this repo for "TimeoutError" errors. This is configured in systemd unit file.
 
 Running manually: 
 
