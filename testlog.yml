@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: TestTask stack
+Parameters:
+  ImageId:
+    Description: ImageId to use
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+Resources: 
+  TestTaskVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.110.110.0/24
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: TestTaskVpc
+
+  TestTaskIgw:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: name
+          Value: TestTaskIgw
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref TestTaskVPC
+      InternetGatewayId: !Ref TestTaskIgw
+
+  TestTaskSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [ 0, Fn::GetAZs: !Ref "AWS::Region"]
+      VpcId: !Ref TestTaskVPC
+      CidrBlock: 10.110.110.0/24
+      Tags:
+        - Key: Name
+          Value: TestTaskSubnet
+  
+  TestTaskENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: "TestTask Instance ENI"
+      GroupSet:
+      SourceDestCheck: false
+      SubnetId: !Ref TestTaskSubnet
+      Tags:
+        - Key: Name
+          Value: TestTaskENI
+
+  TestTaskInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      InstanceType: t4g.small
+      Monitoring: false
+      Tags:
+        - Key: Name
+          Value: TestTaskInstance
+      NetworkInterfaces:
+      - NetworkInterfaceId: !Ref TestTaskENI
+        DeviceIndex: 0
+      UserData: "IyEvdXNyL2Jpbi9lbnYgYmFzaApnaXQgY2xvbmUgaHR0cHM6Ly9naXRodWIuY29tL1Zlcm9uY2hlZy9UZXN0VGFzazEuZ2l0IApjZCBUZXN0VGFzazEKY3AgdGVzdGxvZy5zZXJ2aWNlIC9ldGMvc3lzdGVtZC9zeXN0ZW0vCmNwIHRlc3Rsb2cuc2ggL3Vzci9iaW4vCmNwIHRlc3Rsb2cgL3Zhci9sb2cvCnN5c3RlbWN0bCBkYWVtb24tcmVsb2FkCnN5c3RlbWN0bCBlbmFibGUgdGVzdGxvZy5zZXJ2aWNlCnN5c3RlbWN0bCBzdGFydCB0ZXN0bG9nLnNlcnZpY2UK"
+  
+  IamRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "TestTaskEc2RoleForSSM"
+      Description: "EC2 IAM role for SSM access"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+
+  Ec2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: "TestTaskEc2RoleForSSM"
+      Roles:
+        - Ref: "IamRole"

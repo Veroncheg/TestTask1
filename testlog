@@ -1,0 +1,3 @@
+Dec 28 00:01:30 ip-10-0-5-224 worker-tasks: [2019-12-28 00:01:30,710: ERROR/MainProcess] Error in timer: TimeoutError('Timeout reading from socket',)\nTraceback (most recent call last):\n
+Dec 28 00:01:30 ip-10-0-5-224 worker-tasks: [2019-12-28 00:01:30,710: ERROR/MainProcess] Error in timer: TimeoutError('Timeout reading from socket',)\nTraceback (most recent call last):\n
+Dec 28 00:01:30 ip-10-0-5-224 worker-tasks: [2019-12-28 00:01:30,710: ERROR/MainProcess] Error in timer: TimeoutError('Timeout reading from socket',)\nTraceback (most recent call last):\n
